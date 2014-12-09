@@ -1,0 +1,5 @@
+background_color 0 0 0
+surface_edge_color 0.9608 0.8706 0.7020
+loop_edge_width 3
+loop_point_size 5
+surface_edge_width 1

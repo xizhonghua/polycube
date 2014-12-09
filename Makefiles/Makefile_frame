@@ -1,0 +1,14 @@
+# -*- mode: makefile -*-
+
+HEX_UI=/home/tfjiang/Projects/hex/build/bin/hex_ui
+HEX_UTIL=/home/tfjiang/Projects/hex/build/bin/hex_utils
+TET_FILE=$(wildcard ../tet/*.tet)
+
+
+output.zyz: init.zyz
+	$(HEX_UI) prog=frame_inner tet=$(TET_FILE) align_w=1e3 smooth_strategt=edge strategy=normal normal_smooth_iter=200 control_w=0 package=alglib alg=lbfgs lbfgs-len=7 iter=1000 zyz=output.zyz init=init.zyz
+	$(HEX_UI) prog=find_singularities2_inner tet=$(TET_FILE) zyz=output.zyz vtk_dump=output.zyz.singularity.vtk
+
+init.zyz : $(HEX_UI)
+	$(HEX_UI) prog=init_zyz_inner tet=$(TET_FILE) align_w=1e3 smooth_strategy=face strategy=normal normal_smooth_iter=200 control_w=0 package=hj alg=More iter=100 output=init.zyz
+	$(HEX_UI) prog=find_singularities2_inner tet=$(TET_FILE) zyz=init.zyz vtk_dump=init.zyz.singularity.vtk

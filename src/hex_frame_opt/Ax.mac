@@ -1,0 +1,17 @@
+load(hj_fortran2)$
+
+norm(v) := sqrt(v.v)$
+
+optimprefix : tt$
+
+f : openw("Ax.f90")$
+
+block([e,l],
+  x : genmatrix(x, 9, 2),
+  A : genmatrix(A, 9, 9),
+  Ax(x, A) := matrix([0.5*(A.col(x,1)-col(x,2)).(A.col(x,1)-col(x,2))]),
+  with_stdout(f, val_jac_hes_to_f90(Ax, [x, A])),
+  return()
+  )$
+
+close(f)$

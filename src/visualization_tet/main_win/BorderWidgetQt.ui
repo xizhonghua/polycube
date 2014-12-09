@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BorderWidgetQt</class>
+ <widget class="QMainWindow" name="BorderWidgetQt">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>822</width>
+    <height>692</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>SimpleView</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/Icons/help.png</normaloff>:/Icons/help.png</iconset>
+  </property>
+  <property name="iconSize">
+   <size>
+    <width>22</width>
+    <height>22</height>
+   </size>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="1">
+     <widget class="QVTKWidget" name="qvtk_widget_left"/>
+    </item>
+    <item row="0" column="2">
+     <widget class="QVTKWidget" name="qvtk_widget_right"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>822</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="open_file_action"/>
+    <addaction name="save_action"/>
+    <addaction name="import_action"/>
+    <addaction name="export_cell_action"/>
+    <addaction name="separator"/>
+    <addaction name="exit_action"/>
+   </widget>
+   <widget class="QMenu" name="menu_Edit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <widget class="QMenu" name="menuRotation">
+     <property name="title">
+      <string>Rotation</string>
+     </property>
+     <addaction name="rotate_x_action"/>
+     <addaction name="rotate_y_action"/>
+     <addaction name="rotate_z_action"/>
+    </widget>
+    <addaction name="add_box_action"/>
+    <addaction name="delete_one_action"/>
+    <addaction name="delete_all_action"/>
+    <addaction name="get_tet_action"/>
+    <addaction name="delete_model_action"/>
+    <addaction name="menuRotation"/>
+    <addaction name="add_plane_action"/>
+    <addaction name="get_plane_tet"/>
+    <addaction name="delete_all_plane_action"/>
+   </widget>
+   <widget class="QMenu" name="menu_Line">
+    <property name="title">
+     <string>&amp;Line</string>
+    </property>
+    <addaction name="add_line_action"/>
+   </widget>
+   <widget class="QMenu" name="menu_Color">
+    <property name="title">
+     <string>&amp;Color</string>
+    </property>
+    <addaction name="blue_action"/>
+    <addaction name="white_action"/>
+    <addaction name="red_action"/>
+   </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="surface_edge_action"/>
+    <addaction name="dual_screen_action"/>
+    <addaction name="single_screen_action"/>
+    <addaction name="separator"/>
+    <addaction name="link_camera_action"/>
+   </widget>
+   <widget class="QMenu" name="menu_Pick">
+    <property name="title">
+     <string>&amp;Pick</string>
+    </property>
+    <addaction name="single_pick_action"/>
+    <addaction name="multi_pick_action"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menu_Edit"/>
+   <addaction name="menu_Line"/>
+   <addaction name="menu_Color"/>
+   <addaction name="menu_View"/>
+   <addaction name="menu_Pick"/>
+  </widget>
+  <widget class="QStatusBar" name="status_bar"/>
+  <action name="actionOpenFile">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/Icons/fileopen.png</normaloff>:/Icons/fileopen.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open File...</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset>
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/Icons/print.png</normaloff>:/Icons/print.png</iconset>
+   </property>
+   <property name="text">
+    <string>Print</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/Icons/help.png</normaloff>:/Icons/help.png</iconset>
+   </property>
+   <property name="text">
+    <string>Help</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/Icons/filesave.png</normaloff>:/Icons/filesave.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="open_file_action">
+   <property name="text">
+    <string>&amp;Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="add_box_action">
+   <property name="text">
+    <string>&amp;Add Box</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="delete_one_action">
+   <property name="text">
+    <string>&amp;Delete One Box</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="delete_all_action">
+   <property name="text">
+    <string>&amp;Delete All Box</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X, A</string>
+   </property>
+  </action>
+  <action name="exit_action">
+   <property name="text">
+    <string>&amp;Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="get_tet_action">
+   <property name="text">
+    <string>&amp;Get Tet</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="delete_model_action">
+   <property name="text">
+    <string>&amp;Delete model</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X, D</string>
+   </property>
+  </action>
+  <action name="rotate_x_action">
+   <property name="text">
+    <string>Rotate X</string>
+   </property>
+   <property name="shortcut">
+    <string>X</string>
+   </property>
+  </action>
+  <action name="rotate_y_action">
+   <property name="text">
+    <string>Rotate Y</string>
+   </property>
+   <property name="shortcut">
+    <string>Y</string>
+   </property>
+  </action>
+  <action name="rotate_z_action">
+   <property name="text">
+    <string>Rotate Z</string>
+   </property>
+   <property name="shortcut">
+    <string>Z</string>
+   </property>
+  </action>
+  <action name="save_action">
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="import_action">
+   <property name="text">
+    <string>&amp;Import box</string>
+   </property>
+  </action>
+  <action name="add_plane_action">
+   <property name="text">
+    <string>&amp;Add Plane</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="get_plane_tet">
+   <property name="text">
+    <string>&amp;Get Plane Tet</string>
+   </property>
+  </action>
+  <action name="delete_all_plane_action">
+   <property name="text">
+    <string>&amp;Delete All Plane</string>
+   </property>
+  </action>
+  <action name="add_line_action">
+   <property name="text">
+    <string>&amp;Add Line</string>
+   </property>
+  </action>
+  <action name="blue_action">
+   <property name="text">
+    <string>Blue</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
+   </property>
+  </action>
+  <action name="white_action">
+   <property name="text">
+    <string>White</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
+   </property>
+  </action>
+  <action name="red_action">
+   <property name="text">
+    <string>Red</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
+  </action>
+  <action name="surface_edge_action">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Surface with edge</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="export_cell_action">
+   <property name="text">
+    <string>&amp;Export cell</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="dual_screen_action">
+   <property name="text">
+    <string>&amp;Dual screen</string>
+   </property>
+  </action>
+  <action name="single_screen_action">
+   <property name="text">
+    <string>&amp;Single screen</string>
+   </property>
+  </action>
+  <action name="link_camera_action">
+   <property name="text">
+    <string>&amp;Link camera</string>
+   </property>
+  </action>
+  <action name="single_pick_action">
+   <property name="text">
+    <string>&amp;Single pick</string>
+   </property>
+  </action>
+  <action name="multi_pick_action">
+   <property name="text">
+    <string>&amp;Multi pick</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header>QVTKWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

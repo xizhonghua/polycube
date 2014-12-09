@@ -1,0 +1,25 @@
+load(hj_fortran2)$
+
+norm(v) := sqrt(v.v)$
+
+optimprefix : tt$
+
+f:openw("relation.f90")$
+
+block([shfs,Rot],
+e4:transpose(matrix([0,0,0,0,1,0,0,0,0])),
+Rc:matrix([0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0]),
+shfs:genmatrix(shfs,11,1),
+Rot:genmatrix(Rot,9,9),
+c:list_matrix_entries(shfs),
+sh:transpose(matrix([c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],c[9]])),
+fs:transpose(matrix([c[10],c[11]])),
+
+relate_diff(shfs,rot):=rot.((sqrt(5.0)/norm(fs))*transpose(Rc).fs+sqrt(7.0)*e4)-(sqrt(12.0)/norm(sh))*sh,
+/*with_stdout(f, val_jac_hes_to_f90(relate_diff,[shfs,Rot])),*/
+
+relate_diff_energy(shfs,rot):=matrix([relate_diff(shfs,rot).relate_diff(shfs,rot)]),
+with_stdout(f, val_jac_hes_to_f90(relate_diff_energy, [shfs,Rot])),
+return()
+)$
+close(f)$

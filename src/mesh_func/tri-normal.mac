@@ -1,0 +1,157 @@
+load(vect)$
+
+load(f90)$
+load("hj_flatten")$
+load("hj_fortran")$
+
+optimprefix:tt$
+
+flatten_jacobian(fx,x) := jacobian(hj_flatten(fx), hj_flatten(x))$
+
+tri : genmatrix(tri, 3, 3)$
+
+/*
+  a
+c   d
+  b
+normal points to out
+*/
+tri_pair : genmatrix(tri_pair, 3, 4)$
+/*tab_six: genmatrix(tab_six, 3,6)$
+tab_five: genmatrix(tab_five, 3,5)$*/
+edge: genmatrix(edge, 3, 2)$
+
+edge_dir(t) :=
+  block(
+  [e],
+  e: col(t,2) -col(t,1),
+  len : sqrt(e.e),
+  if len < 1e-8 then
+     len : 1,
+  n1:e/len,
+  ratsimp(n1)
+  )$
+
+edge_len_dir(t) :=
+  block(
+  [e],
+  e: col(t,2) -col(t,1)
+  )$
+
+edge_len(t) :=
+block(
+[e],
+e: col(t,2) - col(t,1),
+matrix([sqrt(e.e)])
+)$
+
+tri_normal(t) :=
+	block(
+	[e1, e2],
+	e1: col(t, 1)-col(t, 3),
+	e2: col(t, 2)-col(t, 3),
+    n: matrix(express(hj_flatten(e1)~hj_flatten(e2))),
+	len : sqrt(n.n),
+	if len < 1e-8 then
+	   len : 1,
+	n1:n/len,
+    ratsimp(transpose(n1))
+    )$
+
+tri_normal_dot(tp) :=
+  block([t1,t2],
+    t1 : transpose(matrix(hj_flatten(col(tp, 1)), hj_flatten(col(tp, 3)), hj_flatten(col(tp, 2)))),
+    t2 : transpose(matrix(hj_flatten(col(tp, 1)), hj_flatten(col(tp, 2)), hj_flatten(col(tp, 4)))),
+    ratsimp(matrix([tri_normal(t1).tri_normal(t2)]))
+  )$
+
+
+adj_norm_sub(tp) :=
+  block([t1,t2],
+    t1 : transpose(matrix(hj_flatten(col(tp, 1)), hj_flatten(col(tp, 3)), hj_flatten(col(tp, 2)))),
+    t2 : transpose(matrix(hj_flatten(col(tp, 1)), hj_flatten(col(tp, 2)), hj_flatten(col(tp, 4)))),
+    ratsimp(tri_normal(t1)-tri_normal(t2))
+  )$
+/*
+adj_norm_sub_r_zero(tab_six, R) :=
+  block([t1,t2],
+    t1 : transpose(matrix(hj_flatten(col(tab_six, 1)), hj_flatten(col(tab_six, 2)), hj_flatten(col(tab_six, 3)))),
+    t2 : transpose(matrix(hj_flatten(col(tab_six, 4)), hj_flatten(col(tab_six, 5)), hj_flatten(col(tab_six, 6)))),
+    ratsimp(R . tri_normal(t1) - tri_normal(t2))
+  )$
+
+
+adj_norm_sub_r_one(tab_five, R) :=
+  block([t1,t2],
+    t1 : transpose(matrix(hj_flatten(col(tab_five, 1)), hj_flatten(col(tab_five, 2)), hj_flatten(col(tab_five, 3)))),
+    t2 : transpose(matrix(hj_flatten(col(tab_five, 1)), hj_flatten(col(tab_five, 4)), hj_flatten(col(tab_five, 5)))),
+    ratsimp(R . tri_normal(t1) - tri_normal(t2))
+  )$
+*/
+
+
+tri_normal(tri);
+
+tri_normal_jac(t) := flatten_jacobian(tri_normal(t), t);
+tri_normal_hes(t) := flatten_jacobian(tri_normal_jac(t), t);
+tri_normal_dot_jac(tp) := flatten_jacobian(tri_normal_dot(tp),tp);
+adj_norm_sub_jac(tp) := flatten_jacobian(adj_norm_sub(tp),tp);
+
+adj_norm_sub_r_zero_jac(tab_six,R) := flatten_jacobian(adj_norm_sub_r_zero(tab_six,R),tab_six);
+adj_norm_sub_r_one_jac(tab_five,R) := flatten_jacobian(adj_norm_sub_r_one(tab_five,R),tab_five);
+
+edge_dir_jac(t) := flatten_jacobian(edge_dir(t),t);
+edge_dir_hes(t) := flatten_jacobian(edge_dir_jac(t),t);
+
+
+edge_len_dir_jac(t) := flatten_jacobian(edge_len_dir(t),t);
+edge_len_dir_hes(t) := flatten_jacobian(edge_len_dir_jac(t),t);
+
+edge_len_jac(t) := flatten_jacobian(edge_len(t),t);
+edge_len_hes(t) := flatten_jacobian(edge_len_jac(t),t);
+
+calc_edge_dir : optimize(edge_dir = edge_dir(edge)) $
+calc_edge_dir_jac : optimize(edge_dir_jac = edge_dir_jac(edge))$
+calc_edge_dir_hes : optimize(edge_dir_hes = edge_dir_hes(edge))$
+
+calc_edge_len_dir : optimize(edge_len_dir = edge_len_dir(edge)) $
+calc_edge_len_dir_jac : optimize(edge_len_dir_jac = edge_len_dir_jac(edge))$
+calc_edge_len_dir_hes : optimize(edge_len_dir_hes = edge_len_dir_hes(edge))$
+
+calc_edge_len : optimize(edge_len = edge_len(edge)) $
+calc_edge_len_jac : optimize(edge_len_jac = edge_len_jac(edge))$
+calc_edge_len_hes : optimize(edge_len_hes = edge_len_hes(edge))$
+
+calc_tri_normal : optimize(tri_normal = tri_normal(tri))$
+calc_tri_normal_jac : optimize(tri_normal_jac = tri_normal_jac(tri))$
+calc_tri_normal_hes : optimize(tri_normal_hes = tri_normal_hes(tri))$
+
+calc_tri_normal_dot : optimize(tri_normal_dot = tri_normal_dot(tri_pair))$
+calc_tri_normal_dot_jac : optimize(tri_normal_dot_jac = tri_normal_dot_jac(tri_pair))$
+
+
+calc_adj_norm_sub : optimize(adj_norm_sub = adj_norm_sub(tri_pair))$
+calc_adj_norm_sub_jac : optimize(adj_norm_sub_jac = adj_norm_sub_jac(tri_pair))$
+
+
+f : openw("tri-normal.f")$
+
+with_stdout(f, to_fortran('calc_tri_normal, calc_tri_normal, ['tri_normal, 'tri]))$
+with_stdout(f, to_fortran('calc_tri_normal_jac, calc_tri_normal_jac, ['tri_normal_jac, 'tri]))$
+with_stdout(f, to_fortran('calc_tri_normal_hes, calc_tri_normal_hes, ['tri_normal_hes, 'tri]))$
+
+with_stdout(f, to_fortran('calc_tri_normal_dot, calc_tri_normal_dot, ['tri_normal_dot, 'tri_pair]))$
+with_stdout(f, to_fortran('calc_tri_normal_dot_jac, calc_tri_normal_dot_jac, ['tri_normal_dot_jac, 'tri_pair]))$
+
+with_stdout(f, to_fortran('calc_adj_norm_sub, calc_adj_norm_sub, ['adj_norm_sub, 'tri_pair]))$
+with_stdout(f, to_fortran('calc_adj_norm_sub_jac, calc_adj_norm_sub_jac, ['adj_norm_sub_jac, 'tri_pair]))$
+
+with_stdout(f, to_fortran('calc_edge_dir, calc_edge_dir, ['edge_dir, 'edge]))$
+with_stdout(f, to_fortran('calc_edge_dir_jac, calc_edge_dir_jac, ['edge_dir_jac, 'edge]))$
+with_stdout(f, to_fortran('calc_edge_dir_hes, calc_edge_dir_hes, ['edge_dir_hes, 'edge]))$
+
+with_stdout(f, to_fortran('calc_edge_len_dir, calc_edge_len_dir, ['edge_len_dir, 'edge]))$
+with_stdout(f, to_fortran('calc_edge_len_dir_jac, calc_edge_len_dir_jac, ['edge_len_dir_jac, 'edge]))$
+
+with_stdout(f, to_fortran('calc_edge_len, calc_edge_len, ['edge_len, 'edge]))$
+with_stdout(f, to_fortran('calc_edge_len_jac, calc_edge_len_jac, ['edge_len_jac, 'edge]))$

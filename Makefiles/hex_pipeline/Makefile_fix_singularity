@@ -1,0 +1,9 @@
+# -*- mode: makefile -*-
+
+include ../Makefile_common
+
+new_tet.tet:
+				${HEX_UI} prog=refine_frame_field_after_aligned tet=orig.tet zyz=orig.zyz surface_align_w=1 jump_smooth_w=1  dump_out_inner_face_jump_type=inner_type dump_out_surface_type=surface_type new_tet=new_tet.tet temp_zyz=temp.zyz
+
+#extend.tet: orig.tet
+#				$(HEX_UI) prog=extend_tetmesh tet=orig.tet zyz=orig.zyz output_zyz=extend.zyz output_tet=extend.tet lay_n=1 package=jtf alg=SQP iter=50 linear_solver/type=direct linear_solver/name=cholmod

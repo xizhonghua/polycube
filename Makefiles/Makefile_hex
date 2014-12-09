@@ -1,0 +1,19 @@
+HEX_UI=/home/tfjiang/Projects/hex_tree/branches/for_shizeyun/build/bin/hex_ui
+
+TET_FILE=$(wildcard *.tet)
+GROUP_FILE=$(wildcard group_file)
+EQUATION_FILE=$(wildcard equation_file)
+CHAIN_FILE=$(wildcard chain_file)
+ZYZ_FILE=$(wildcard *.zyz)
+PATH=$(shell pwd)
+
+MIN_ITER=$(beg)
+MAX_ITER=$(end)
+
+default: $(HEX_UI) $(TET_FILE) $(GROUP_FILE) $(EQUATION_FILE) $(CHAIN_FILE) $(ZYZ_FILE)
+	$(shell cp /home/tfjiang/usr/knitro-8.1.1-z/knitro.opt ./) $(HEX_UI) prog=deform_tet path=$(PATH)
+
+$(HEX_UI):
+
+clean: 
+	$(shell rm result*.vtk cut*.vtk chain*.vtk group.vtk frame.vtk residual.vtk wave.vtk uvw*)

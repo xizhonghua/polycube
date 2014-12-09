@@ -1,0 +1,23 @@
+load(hj_fortran2)$
+load(vect)$
+load(f90)$
+load("hj_flatten")$
+
+
+norm(v) := sqrt(v.v)$
+
+optimprefix : tt$
+
+f:openw("tri_area_normal_diff.f90")$
+
+block([tri,nb],
+tri:genmatrix(tri,3,3),
+nb:genmatrix(nb,3,1),
+e1: col(tri,1)-col(tri,3),
+e2: col(tri,2)-col(tri,3),
+n:transpose(matrix(express(hj_flatten(e1)~hj_flatten(e2))))/2,
+tri_area_normal_diff(tri,nb):=matrix([(n-nb).(n-nb)]),
+with_stdout(f, val_jac_hes_to_f90(tri_area_normal_diff, [tri,nb])),
+return()
+)$
+close(f)$

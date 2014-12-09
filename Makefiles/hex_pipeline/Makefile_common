@@ -1,0 +1,8 @@
+# -*- mode: makefile -*-
+
+HOME=/home/$(shell whoami)
+ProjectPath=$(HOME)/Projects/hex
+HEX_UI=$(ProjectPath)/build/bin/hex_ui
+HEX_UTIL=$(ProjectPath)/build/bin/hex_utils
+PARAM = $(ProjectPath)/build/bin/param
+HexExtractor=$(ProjectPath)/build/bin/test_extract_integer_points

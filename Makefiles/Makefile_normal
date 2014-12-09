@@ -1,0 +1,33 @@
+HEX_UI=/home/tfjiang/Projects/hex/build/bin/hex_ui
+HEX_UTIL=/home/tfjiang/Projects/hex/build/bin/hex_utils
+
+TET_FILE=$(wildcard ../tet/*.tet)
+PLAIN=../tet/plane_tet_index.txt
+INIT_ZYZ=$(FIX_W).init.suv.zyz
+FINIAL_ZYZ=$(FIX_W).inner.suv.zyz
+INNER_SMOOTH=face
+NORMAL_ALIGN=0
+FIX_W=1000
+
+default: vis 
+		
+$(FINIAL_ZYZ): $(INIT_ZYZ) $(HEX_UI)
+	$(HEX_UI) prog=frame_inner tet=$(TET_FILE) zyz=$(FINIAL_ZYZ) align_w=$(NORMAL_ALIGN) fix_w=$(FIX_W) init=$(INIT_ZYZ) package=alglib alg=lbfgs lbfgs-len=7 iter=1000  inner_smooth=$(INNER_SMOOTH) plane=$(PLAIN)
+
+$(INIT_ZYZ): $(HEX_UI)
+	$(HEX_UI) prog=init_zyz_inner tet=$(TET_FILE) output=$(INIT_ZYZ) align_w=$(NORMAL_ALIGN)  fix_w=$(FIX_W) package=hj alg=More iter=100 inner_smooth=$(INNER_SMOOTH) plane=$(PLAIN)
+
+vis: $(INIT_ZYZ) $(FINIAL_ZYZ) $(HEX_UI)
+	 $(HEX_UI) prog=draw_inner_residual tet=$(TET_FILE) zyz=$(INIT_ZYZ) 
+	 $(HEX_UI) prog=draw_sh_smooth tet=$(TET_FILE) zyz=$(INIT_ZYZ)
+	 $(HEX_UI) prog=find_singularities2_inner tet=$(TET_FILE) zyz=$(INIT_ZYZ) vtk_dump=$(INIT_ZYZ).singularities.vtk
+	 $(HEX_UTIL) to_vis_inner $(TET_FILE) $(INIT_ZYZ) $(INIT_ZYZ).vis
+	 $(HEX_UI) prog=draw_inner_residual tet=$(TET_FILE) zyz=$(FINIAL_ZYZ)
+	 $(HEX_UI) prog=find_singularities2_inner tet=$(TET_FILE) zyz=$(FINIAL_ZYZ) vtk_dump=$(FINIAL_ZYZ).singularities.vtk
+	 $(HEX_UTIL) to_vis_inner $(TET_FILE) $(FINIAL_ZYZ) $(FINIAL_ZYZ).vis
+	 $(HEX_UI) prog=draw_sh_smooth tet=$(TET_FILE) zyz=$(FINIAL_ZYZ)
+
+$(HEX_UI):
+
+clear:
+	rm *.zyz

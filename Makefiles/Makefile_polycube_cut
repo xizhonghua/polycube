@@ -1,0 +1,44 @@
+# -*- mode: makefile -*-
+
+HEX_UI=/home/tfjiang/Projects/hex/build/bin/hex_ui
+HEX_UTIL=/home/tfjiang/Projects/hex/build/bin/hex_utils
+POLYCUBE=/home/tfjiang/Projects/hex/build/bin/polycube
+
+TET_FILE=$(wildcard ../tet/*.tet)
+POLYCUBE_TET=$(patsubst %.tet,%.polycube.tet, $(notdir $(TET_FILE)))
+INNER_FACE_TYPE=inner_face_jump_type.debug
+
+NEW_TET=$(wildcard *.new.tet)
+NEW_INNER_FACE_JUMP_TYPE=$(wildcard *.zyz.inner_face_jump_type)
+NEW_SURFACE_TYPE=$(wildcard *.zyz.surface_type)
+
+CUT_TET=$(wildcard)
+
+#SURFACE_TYPE_GET_FROM_POLYCUBE=surface_type
+
+# remove_surface_degenerated: new_tet.tet
+# 	$(HEX_UI) prog=remove_surface_degenerated_patch_by_collapsing tet=new_tet.tet  surface_type=surface_type_original_after_remove_degeneration inner_face_jump_type=inner_face_jump_type_after_remove_degeneration
+
+# new_tet.tet : $(NEW_TET) cut_tet.tet g_unknown_jump_face surface_type_from_polycube
+# 	$(HEX_UI) prog=remove_surface_wedge tet=$(NEW_TET) cut_tet=cut_tet.tet inner_face_jump_type=inner_face_jump_type.debug surface_type=surface_type_from_polycube g_unknown_face=g_unknown_jump_face new_tet=new_tet.tet 
+
+# surface_type_from_polycube : cut_tet.tet 
+# 	$(HEX_UTIL) check_polycube_surface cut_tet.tet cut_tet.tet $(NEW_TET) 
+
+# surface_restricted_type: $(NEW_TET) cut_tet.tet
+# 	$(HEX_UTIL) cut_surface_type2orig_type $(NEW_TET) cut_tet.tet surface_type.debug 1> surface_restricted_type
+
+# g_unknown_jump_face cut_tet.tet inner_face_jump_type.debug: $(NEW_TET) $(NEW_INNER_FACE_JUMP_TYPE) $(NEW_SURFACE_TYPE)
+# 	$(HEX_UI)  prog=aggressive_extract_jump_type tet=$(NEW_TET) inner_face_jump_type=$(NEW_INNER_FACE_JUMP_TYPE) surface_type=$(NEW_SURFACE_TYPE) no_surface=y
+
+# $(NEW_TET) $(NEW_INNER_FACE_JUMP_TYPE) $(NEW_SURFACE_TYPE):
+
+	$(POLYCUBE) prog=polycube_cut tet=$(TET_FILE) cut_tet=new_cut_tet-compress.tet iter=100 normal_align_w=0.5 linear_solver/type=direct linear_solver/name=cholmod iter_w=10 L1_sqrt_eps=0.1 normal_align_w=5e-1 output="a.tet" iter=500  epsg=1e-3
+
+defalut : new_tet.tet
+
+clean:
+	rm cut_tet.tet
+
+
+

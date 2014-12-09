@@ -1,0 +1,43 @@
+# -*- mode: makefile -*-
+
+HEX_UI=/home/tfjiang/Projects/hex/build/bin/hex_ui
+HEX_UTIL=/home/tfjiang/Projects/hex/build/bin/hex_utils
+POLYCUBE=/home/tfjiang/Projects/hex/build/bin/polycube
+POLYCUBE_POST=/home/tfjiang/Projects/hex/build/bin/polycube_postprocess
+
+TET_FILE=$(wildcard ../tet/*.tet)
+POLYCUBE_TET=$(patsubst %.tet,%.polycube.tet, $(notdir $(TET_FILE)))
+ADJ_NORMAL_W=0
+EPSG=1e-9
+NORMAL_ALIGN_W=0.05
+ANTI_FLIP_W=0.01
+DIV_L=1.9
+TET_COLLAPSE=after_collapse_output.tet
+
+default: polycube_after_split.tet
+	$(POLYCUBE_POST) prog=update_surface_node orig_tet=new_tet.tet polycube_tet=polycube_after_split.tet surface_type=surface_type_after_automatically_modification
+
+polycube_after_split.tet: edges_need_to_split
+ 	# $(HEX_UI) prog=extract_relax_surface tet=cut_tet.tet surface_type=surface_type.debug loop_points=loop_points
+ 	# $(POLYCUBE) prog=polycube package=hj alg=More output="new_tet-restricted-surface_type.tet" linear_solver/type=direct linear_solver/name=cholmod iter=50 tet=new_tet.tet restricted_surface_type=after_relax_surface_type
+	$(HEX_UTIL) split_edge_on_polycube $(POLYCUBE_TET) new_tet.tet edges_need_to_split
+
+edges_need_to_split : surface_type_original_after_remove_degeneration
+#	$(HEX_UI) prog=check_polycube_validation_with_equation_graph tet=new_tet.tet  cut_tet=new_tet.tet surface_type=surface_type_original_after_remove_degeneration no_surface=n
+#	$(HEX_UI) prog=remove_surface_wedge tet=cut_tet.tet cut_tet=cut_tet.tet inner_face_jump_type=inner_face_jump_type.debug surface_type=surface_type.debug new_tet=new_tet.tet restricted_edge=restricted_edges #zyz=frame_after_aligned.zyz
+	$(HEX_UI) prog=check_polycube_validation_with_equation_graph tet=new_tet.tet  cut_tet=new_tet.tet surface_type=surface_type_original_after_remove_degeneration no_surface=n
+#	$(POLYCUBE)  prog=polycube package=hj alg=More output="init_tet.polycube.tet" linear_solver/type=direct linear_solver/name=cholmod iter=500 tet=new_tet.tet #zyz=frame_after_aligned.zyz
+	$(HEX_UI) prog=remove_surface_degenerated_patch_by_collapsing tet=new_tet.tet surface_type=surface_type_original_after_remove_degeneration
+
+new_tet.tet surface_type_original_after_remove_degeneration: surface_type_from_polycube $(TET_COLLAPSE)
+	 touch polycube_inner_face_jump_type
+	 $(HEX_UI) prog=remove_surface_wedge tet=$(TET_COLLAPSE) cut_tet=$(TET_COLLAPSE) inner_face_jump_type=polycube_inner_face_jump_type surface_type=surface_type_from_polycube new_tet=new_tet.tet #zyz=frame_after_aligned.zyz
+
+surface_type_from_polycube: $(POLYCUBE_TET)
+	$(HEX_UTIL) check_polycube_surface $(TET_COLLAPSE) $(POLYCUBE_TET)
+
+$(TET_COLLAPSE) $(POLYCUBE_TET) : $(TET_FILE) #$(POLYCUBE)
+	time $(POLYCUBE)  prog=polycube3 package=hj alg=More output="$(POLYCUBE_TET)" iter=100 tet=$(TET_FILE) normal_align_w=$(NORMAL_ALIGN_W) iter_w=20 vol_w=0 adj_normal_w=$(ADJ_NORMAL_W) linear_solver/type=direct linear_solver/name=cholmod L1_sqrt_eps=1 epsg=$(EPSG) anti_flip_w=$(ANTI_FLIP_W) package=jtf alg=SQP
+#	$(POLYCUBE)  prog=polycube package=hj alg=More output="$(POLYCUBE_TET)" linear_solver/type=direct linear_solver/name=cholmod iter=1000 tet=$(POLYCUBE_TET) normal_align_w=1000 iter_w=1 vol_w=0 normal_diff_w=0
+	cp $(POLYCUBE_TET) init_tet.polycube.tet 
+$(TET_FILE) $(POLYCUBE):

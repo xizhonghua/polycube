@@ -1,0 +1,17 @@
+load(f90)$
+
+load("rot_cubic_f_SH.lisp")$
+load("hj_fortran")$
+
+optimprefix:tt$
+
+calc_rot_cubic_f_SH_mat : optimize(calc_rot_cubic_f_SH_mat)$
+calc_rot_cubic_f_SH : optimize(calc_rot_cubic_f_SH)$
+calc_Jac_rot_cubic_f_SH : optimize(calc_Jac_rot_cubic_f_SH)$
+
+/* output to fortran */
+f : openw("rot_cubic_f_SH.f")$
+
+with_stdout(f, to_fortran('calc_rot_cubic_f_SH_mat, calc_rot_cubic_f_SH_mat, ['rot_cubic_f_SH_mat, 'abc]))$
+with_stdout(f, to_fortran('calc_rot_cubic_f_SH, calc_rot_cubic_f_SH, ['rot_cubic_f_SH, 'abc]))$
+with_stdout(f, to_fortran('calc_Jac_rot_cubic_f_SH, calc_Jac_rot_cubic_f_SH, ['Jac_rot_cubic_f_SH, 'abc]))$

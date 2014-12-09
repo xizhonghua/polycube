@@ -1,0 +1,11 @@
+# -*- mode: makefile -*-
+include ../Makefile_common
+
+cut_tet.tet: cut_tet_redundant.tet
+				$(HEX_UTIL) simply_cut_tet ../fix/new_tet.tet cut_tet_redundant.tet inner_type_cut cut_tet.tet
+				$(HEX_UI) prog=equation_graph_check tet=../fix/new_tet.tet inner_type=inner_type_cut input/cut_tet=cut_tet.tet surface_type=surface_type_cut
+#				$(HEX_UI) prog=equation_graph_check tet=../fix/new_tet.tet inner_type=inner_type_cut input/cut_tet=cut_tet.tet
+
+cut_tet_redundant.tet: ../fix/new_tet.tet
+				$(HEX_UI) prog=equation_graph_check tet=../fix/new_tet.tet inner_type=../fix/inner_type zyz=../fix/temp.zyz surface_type=../fix/surface_type output/cut_tet=cut_tet_redundant.tet
+#				$(HEX_UI) prog=equation_graph_check tet=../fix/new_tet.tet inner_type=../fix/inner_type zyz=../fix/temp.zyz output/cut_tet=cut_tet_redundant.tet

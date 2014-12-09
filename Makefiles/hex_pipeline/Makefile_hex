@@ -1,0 +1,5 @@
+# -*- mode: makefile -*-
+include ../Makefile_common
+
+orig.hex.vtk: orig.tet.vtk param.tet.vtk
+	$(HexExtractor) . 2

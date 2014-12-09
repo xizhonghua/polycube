@@ -1,0 +1,23 @@
+HEX_UI=/home/tfjiang/Projects/hex/build/bin/hex_ui
+HEX_UTIL=/home/tfjiang/Projects/hex/build/bin/hex_utils
+
+TET_FILE=$(wildcard ../tet/*.tet)
+ZYZ_FILE=$(wildcard *.inner.with_surface_normal.zyz)
+TEMP_ZYZ=$(patsubst %.inner.with_surface_normal.zyz,%.inner.with_surface_normal.temp.zyz, $(ZYZ_FILE))
+NEW_TET_FILE=$(patsubst %.inner.with_surface_normal.zyz,%.inner.with_surface_normal.new.tet, $(ZYZ_FILE))
+INNER_FACE_TYPE=$(patsubst %.inner.with_surface_normal.zyz,%.inner.with_surface_normal.zyz.inner_face_jump_type, $(ZYZ_FILE))
+SURFACE_FACE_TYPE=$(patsubst %.inner.with_surface_normal.zyz,%.inner.with_surface_normal.zyz.surface_type, $(ZYZ_FILE))
+
+MODIFIED_TOPOLOGY=$(TEMP_ZYZ) $(NEW_TET_FILE) $(INNER_FACE_TYPE) $(SURFACE_FACE_TYPE)
+
+default: $(TET_FILE) $(HEX_UI) 
+	$(HEX_UI) prog=aggressive_extract_jump_type tet=$(TET_FILE) zyz=$(ZYZ_FILE)
+	$(HEX_UTIL) check_type_setting_files cut_tet.tet group_file chain_file
+
+$(MODIFIED_TOPOLOGY): $(TET_FILE)
+	$(HEX_UI) prog=refine_frame_field_after_aligned tet=$(TET_FILE) zyz=$(ZYZ_FILE)  surface_align_w=1 jump_smooth_w=1 dump_out_inner_face_jump_type=$(INNER_FACE_TYPE) dump_out_surface_type=$(SURFACE_FACE_TYPE) new_tet=$(NEW_TET_FILE) temp_zyz=$(TEMP_ZYZ)
+
+$(TET_FILE) $(HEX_UI) $(ZYZ_FILE):
+
+clean:
+	-rm $(MODIFIED_TOPOLOGY)

@@ -1,0 +1,143 @@
+load(vect)$
+
+load(f90)$
+load("hj_flatten")$
+load("hj_fortran")$
+
+optimprefix:tt$
+
+flatten_jacobian(fx,x) := jacobian(hj_flatten(fx), hj_flatten(x))$
+
+two_frame : genmatrix(two_frame, 3, 6);
+
+permutation(t) := block(
+F1:submatrix(t,4,5,6),
+F2:submatrix(t,1,2,3),
+ratsimp(transpose(F1).F2)
+)$
+
+permutation_0(t) := block(
+F:permutation(t),
+n:col(F,1),
+x2:n[1]*n[1],
+y2:n[2]*n[2],
+z2:n[3]*n[3],
+matrix([x2*y2+y2*z2+z2*x2])
+)$
+
+permutation_1(t) := block(
+F:permutation(t),
+n:col(F,2),
+x2:n[1]*n[1],
+y2:n[2]*n[2],
+z2:n[3]*n[3],
+matrix([x2*y2+y2*z2+z2*x2])
+)$
+
+permutation_2(t) := block(
+F:permutation(t),
+n:col(F,3),
+x2:n[1]*n[1],
+y2:n[2]*n[2],
+z2:n[3]*n[3],
+matrix([x2*y2+y2*z2+z2*x2])
+)$
+
+permutation_3(t) := block(
+F:permutation(t),
+n:transpose(row(F,1)),
+x2:n[1]*n[1],
+y2:n[2]*n[2],
+z2:n[3]*n[3],
+matrix([x2*y2+y2*z2+z2*x2])
+)$
+
+permutation_4(t) := block(
+F:permutation(t),
+n:transpose(row(F,2)),
+x2:n[1]*n[1],
+y2:n[2]*n[2],
+z2:n[3]*n[3],
+matrix([x2*y2+y2*z2+z2*x2])
+)$
+
+permutation_5(t) := block(
+F:permutation(t),
+n:transpose(row(F,3)),
+x2:n[1]*n[1],
+y2:n[2]*n[2],
+z2:n[3]*n[3],
+matrix([x2*y2+y2*z2+z2*x2])
+)$
+
+
+permutation_0_jac(t) := flatten_jacobian(permutation_0(t),t);
+permutation_0_hes(t) := flatten_jacobian(permutation_0_jac(t),t);
+
+permutation_1_jac(t) := flatten_jacobian(permutation_1(t),t);
+permutation_1_hes(t) := flatten_jacobian(permutation_1_jac(t),t);
+
+permutation_2_jac(t) := flatten_jacobian(permutation_2(t),t);
+permutation_2_hes(t) := flatten_jacobian(permutation_2_jac(t),t);
+
+permutation_3_jac(t) := flatten_jacobian(permutation_3(t),t);
+permutation_3_hes(t) := flatten_jacobian(permutation_3_jac(t),t);
+
+permutation_4_jac(t) := flatten_jacobian(permutation_4(t),t);
+permutation_4_hes(t) := flatten_jacobian(permutation_4_jac(t),t);
+
+permutation_5_jac(t) := flatten_jacobian(permutation_5(t),t);
+permutation_5_hes(t) := flatten_jacobian(permutation_5_jac(t),t);
+
+
+calc_permutation_0 : optimize(permutation_0 = permutation_0(two_frame))$
+calc_permutation_0_jac : optimize(permutation_0_jac = permutation_0_jac(two_frame))$
+calc_permutation_0_hes : permutation_0_hes = permutation_0_hes(two_frame)$
+
+calc_permutation_1 : optimize(permutation_1 = permutation_1(two_frame))$
+calc_permutation_1_jac : optimize(permutation_1_jac = permutation_1_jac(two_frame))$
+calc_permutation_1_hes : permutation_1_hes = permutation_1_hes(two_frame)$
+
+calc_permutation_2 : optimize(permutation_2 = permutation_2(two_frame))$
+calc_permutation_2_jac : optimize(permutation_2_jac = permutation_2_jac(two_frame))$
+calc_permutation_2_hes : permutation_2_hes = permutation_2_hes(two_frame)$
+
+calc_permutation_3 : optimize(permutation_3 = permutation_3(two_frame))$
+calc_permutation_3_jac : optimize(permutation_3_jac = permutation_3_jac(two_frame))$
+calc_permutation_3_hes : permutation_3_hes = permutation_3_hes(two_frame)$
+
+calc_permutation_4 : optimize(permutation_4 = permutation_4(two_frame))$
+calc_permutation_4_jac : optimize(permutation_4_jac = permutation_4_jac(two_frame))$
+calc_permutation_4_hes : permutation_4_hes = permutation_4_hes(two_frame)$
+
+calc_permutation_5 : optimize(permutation_5 = permutation_5(two_frame))$
+calc_permutation_5_jac : optimize(permutation_5_jac = permutation_5_jac(two_frame))$
+calc_permutation_5_hes : permutation_5_hes = permutation_5_hes(two_frame)$
+
+f : openw("permutation.f")$
+
+with_stdout(f, to_fortran('calc_permutation_0, calc_permutation_0, ['permutation_0, 'two_frame]))$
+with_stdout(f, to_fortran('calc_permutation_0_jac, calc_permutation_0_jac, ['permutation_0_jac, 'two_frame]))$
+
+with_stdout(f, to_fortran('calc_permutation_0_hes, calc_permutation_0_hes, ['permutation_0_hes, 'two_frame]))$
+
+with_stdout(f, to_fortran('calc_permutation_1, calc_permutation_1, ['permutation_1, 'two_frame]))$
+with_stdout(f, to_fortran('calc_permutation_1_jac, calc_permutation_1_jac, ['permutation_1_jac, 'two_frame]))$
+with_stdout(f, to_fortran('calc_permutation_1_hes, calc_permutation_1_hes, ['permutation_1_hes, 'two_frame]))$
+
+with_stdout(f, to_fortran('calc_permutation_2, calc_permutation_2, ['permutation_2, 'two_frame]))$
+with_stdout(f, to_fortran('calc_permutation_2_jac, calc_permutation_2_jac, ['permutation_2_jac, 'two_frame]))$
+with_stdout(f, to_fortran('calc_permutation_2_hes, calc_permutation_2_hes, ['permutation_2_hes, 'two_frame]))$
+
+with_stdout(f, to_fortran('calc_permutation_3, calc_permutation_3, ['permutation_3, 'two_frame]))$
+with_stdout(f, to_fortran('calc_permutation_3_jac, calc_permutation_3_jac, ['permutation_3_jac, 'two_frame]))$
+with_stdout(f, to_fortran('calc_permutation_3_hes, calc_permutation_3_hes, ['permutation_3_hes, 'two_frame]))$
+
+with_stdout(f, to_fortran('calc_permutation_4, calc_permutation_4, ['permutation_4, 'two_frame]))$
+with_stdout(f, to_fortran('calc_permutation_4_jac, calc_permutation_4_jac, ['permutation_4_jac, 'two_frame]))$
+with_stdout(f, to_fortran('calc_permutation_4_hes, calc_permutation_4_hes, ['permutation_4_hes, 'two_frame]))$
+
+with_stdout(f, to_fortran('calc_permutation_5, calc_permutation_5, ['permutation_5, 'two_frame]))$
+with_stdout(f, to_fortran('calc_permutation_5_jac, calc_permutation_5_jac, ['permutation_5_jac, 'two_frame]))$
+with_stdout(f, to_fortran('calc_permutation_5_hes, calc_permutation_5_hes, ['permutation_5_hes, 'two_frame]))$
+

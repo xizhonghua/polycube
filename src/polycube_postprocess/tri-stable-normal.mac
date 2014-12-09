@@ -1,0 +1,34 @@
+load(vect)$
+
+load(f90)$
+load("hj_flatten")$
+load("hj_fortran")$
+
+optimprefix:tt$
+
+flatten_jacobian(fx,x) := jacobian(hj_flatten(fx), hj_flatten(x))$
+
+tri : genmatrix(tri, 3, 3)$
+
+tri_stable_normal(t) :=
+	block(
+	[e1, e2],
+	e1: col(t, 1)-col(t, 3),
+	e2: col(t, 2)-col(t, 3),
+  n: matrix(express(hj_flatten(e1)~hj_flatten(e2)))/2,
+	len : sqrt(n.n)+eps,
+  ratsimp(transpose(n/len))
+)$
+
+tri_stable_normal_jac(t) := flatten_jacobian(tri_stable_normal(t), t);
+tri_stable_normal_hes(t) := flatten_jacobian(tri_stable_normal_jac(t), t);
+
+calc_tri_stable_normal : optimize(tri_stable_normal = tri_stable_normal(tri))$
+calc_tri_stable_normal_jac : optimize(tri_stable_normal_jac = tri_stable_normal_jac(tri))$
+calc_tri_stable_normal_hes : optimize(tri_stable_normal_hes = tri_stable_normal_hes(tri))$
+
+f : openw("tri-stable-normal.f")$
+
+with_stdout(f, to_fortran('calc_tri_stable_normal, calc_tri_stable_normal, ['tri_stable_normal, 'tri]))$
+with_stdout(f, to_fortran('calc_tri_stable_normal_jac, calc_tri_stable_normal_jac, ['tri_stable_normal_jac, 'tri]))$
+with_stdout(f, to_fortran('calc_tri_stable_normal_hes, calc_tri_stable_normal_hes, ['tri_stable_normal_hes, 'tri]))$

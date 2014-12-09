@@ -1,0 +1,14 @@
+load(hj_fortran2)$
+
+optimprefix : tt$
+
+f:openw("rot.f90")$
+
+block([rot,p0,p1],
+rot:genmatrix(rot,3,3),
+e:matrix([1,0,0],[0,1,0],[0,0,1]),
+rot_matrix(rot):= matrix([mat_norm(transpose(rot).rot-e,frobenius)^2]),
+with_stdout(f, val_jac_hes_to_f90(rot_matrix, [rot])),
+return()
+)$
+close(f)$

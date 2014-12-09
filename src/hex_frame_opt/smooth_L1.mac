@@ -1,0 +1,16 @@
+load(hj_fortran2)$
+
+optimprefix : tt$
+
+f:openw("smooth_L1.f90")$
+
+block([pp,a],
+pp:genmatrix(pp,9,2),
+p0:col(pp,1),
+p1:col(pp,2),
+a:genmatrix(a,1,1),
+smooth_L1(pp,a):= matrix([sqrt((p0-p1).(p0-p1)+a[1])]),
+with_stdout(f, val_jac_hes_to_f90(smooth_L1, [pp,a])),
+return()
+)$
+close(f)$

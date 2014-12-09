@@ -1,0 +1,12 @@
+# -*- mode: makefile -*-
+
+include ../Makefile_common
+
+CUT_TET = $(wildcard ../param-no-surface/after_l1.cut_tet.tet)
+UNCUT_TET = $(wildcard ../param-no-surface/after_l1.uncut_tet.tet)
+ZYZ = $(wildcard ../param-no-surface/after_l1.zyz)
+SURFACE_TYPE= $(wildcard ../equation-with-l1-surface-type/modified_surface_type_uncut)
+INIT_TET = $(wildcard ../param-no-surface/output.l1.tet)
+
+output.integer.tet :
+	$(PARAM) prog=param3d_integer input/tet=$(CUT_TET) object/type=arap package=jtf alg=SQP output/tet=output.integer.tet input/integer_group=../equation-with-l1-surface-type/node_group input/restricted_edge=../equation-with-l1-surface-type/restricted_edges iter=10 input/init_tet=$(INIT_TET) input/uncut_tet=$(UNCUT_TET) input/inner_type=../param-no-surface/after_l1.inner_type input/need_node_compression=y input/surface_type=$(SURFACE_TYPE)

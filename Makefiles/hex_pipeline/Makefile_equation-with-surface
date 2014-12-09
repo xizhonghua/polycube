@@ -1,0 +1,12 @@
+# -*- mode: makefile -*-
+include ../Makefile_common
+
+node_equation : modified_surface_type_uncut
+	$(HEX_UI) prog=equation_graph_check tet=../param-no-surface/after_l1.uncut_tet.tet inner_type=../param-no-surface/after_l1.inner_type surface_type=modified_surface_type_uncut input/cut_tet=../param-no-surface/output.l1.tet
+
+modified_surface_type_uncut: surface_restricted_type_uncut
+	$(HEX_UI) prog=remove_surface_degenerated_patch_in_cut input/cut_tet=../param-no-surface/output.l1.tet input/uncut_tet=../param-no-surface/after_l1.uncut_tet.tet  input/surface_type_uncut=surface_restricted_type_uncut 
+
+surface_restricted_type_uncut:
+	$(HEX_UI) prog=label_surface_type_after_param input/tet=../param-no-surface/output.l1.tet input/uncut_tet=../param-no-surface/after_l1.uncut_tet.tet 
+

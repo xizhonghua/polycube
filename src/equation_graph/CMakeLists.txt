@@ -1,0 +1,6 @@
+project(equation_graph)
+file(GLOB header *.h)
+file(GLOB source *.cpp)
+set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
+add_library(equation_graph SHARED ${header} ${source})
+target_link_libraries(equation_graph numeric)

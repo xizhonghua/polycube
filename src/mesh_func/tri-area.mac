@@ -1,0 +1,35 @@
+load(vect)$
+
+load(f90)$
+load("hj_flatten")$
+load("hj_fortran")$
+
+optimprefix:tt$
+
+flatten_jacobian(fx,x) := jacobian(hj_flatten(fx), hj_flatten(x))$
+
+tri : genmatrix(tri, 3, 3)$
+
+cross3D(A,B) := matrix([ determinant(matrix([A[2,1],A[3,1]],[B[2,1],B[3,1]]))],
+                       [-determinant(matrix([A[1,1],A[3,1]],[B[1,1],B[3,1]]))],
+                       [ determinant(matrix([A[1,1],A[2,1]],[B[1,1],B[2,1]]))])$
+
+tri_area(t) :=
+  block(
+  [e1, e2],
+  e1: col(t,3) - col(t,1),
+  e2: col(t,2) - col(t,1),
+  n: cross3D(e1,e2),
+  matrix([sqrt(n.n)/2])
+  )$
+
+tri_area(tri);
+tri_area_jac(t) := flatten_jacobian(tri_area(t), t);
+
+calc_tri_area : optimize(tri_area = tri_area(tri))$
+calc_tri_area_jac : optimize(tri_area_jac = tri_area_jac(tri))$
+
+f : openw("tri-area.f")$
+
+with_stdout(f, to_fortran('calc_tri_area, calc_tri_area, ['tri_area, 'tri]))$
+with_stdout(f, to_fortran('calc_tri_area_jac, calc_tri_area_jac, ['tri_area_jac, 'tri]))$

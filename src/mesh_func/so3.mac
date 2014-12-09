@@ -1,0 +1,27 @@
+load(vect)$
+
+load(f90)$
+load("hj_flatten")$
+load("hj_fortran")$
+
+optimprefix:tt$
+
+flatten_jacobian(fx,x) := jacobian(hj_flatten(fx), hj_flatten(x))$
+
+R : genmatrix(R, 3, 3)$
+
+so3(M) :=
+	block(
+	[],
+	ratsimp(M.transpose(M)-ident(3))
+	)$
+
+so3_jac(M) := flatten_jacobian(so3(M), M);
+
+calc_so3 : optimize(so3 = so3(R))$
+calc_so3_jac : so3_jac = so3_jac(R)$ /* optimize cause problem*/
+
+f : openw("so3.f")$
+
+with_stdout(f, to_fortran('calc_so3, calc_so3, ['so3, 'R]))$
+with_stdout(f, to_fortran('calc_so3_jac, calc_so3_jac, ['so3_jac, 'R]))$

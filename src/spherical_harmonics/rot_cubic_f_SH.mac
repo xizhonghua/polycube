@@ -1,0 +1,26 @@
+load("hj_flatten")$
+load("SH")$
+
+cubic_f_SH : transpose([0, 0, 0, 0, sqrt(7), 0, 0, 0, sqrt(5)])$
+
+Rx4 : rot_SH_r_coef(Rx, 4)$
+
+Rz4_alpha : rot_SH_r_coef(Rz, 4)$
+
+Rz4(angle) := subst(angle, alpha, Rz4_alpha)$
+
+abc : genmatrix(abc,3,1)$
+
+rot_cubic_f_SH_mat(abc) := Rz4(abc[3,1]).transpose(Rx4).Rz4(abc[2,1]).Rx4.Rz4(abc[1, 1])$
+calc_rot_cubic_f_SH_mat : rot_cubic_f_SH_mat = rot_cubic_f_SH_mat(abc)$
+
+rot_cubic_f_SH(abc) := rot_cubic_f_SH_mat(abc).cubic_f_SH$
+calc_rot_cubic_f_SH : radcan(factor(rot_cubic_f_SH = rot_cubic_f_SH(abc)))$
+
+flatten_jacobian(fx,x) := jacobian(hj_flatten(fx), hj_flatten(x))$
+Jac_rot_cubic_f_SH(abc) := flatten_jacobian(rot_cubic_f_SH(abc), abc)$
+calc_Jac_rot_cubic_f_SH : radcan(factor(Jac_rot_cubic_f_SH = Jac_rot_cubic_f_SH(abc)))$
+
+save("rot_cubic_f_SH.lisp",
+		rot_cubic_f_SH_mat, rot_cubic_f_SH, Jac_rot_cubic_f_SH,
+		calc_rot_cubic_f_SH_mat, calc_rot_cubic_f_SH, calc_Jac_rot_cubic_f_SH)$

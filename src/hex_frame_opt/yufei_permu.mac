@@ -1,0 +1,38 @@
+load(vect)$
+
+load(f90)$
+load("hj_fortran")$
+load("hj_flatten")$
+
+optimprefix:tt$
+
+flatten_jacobian(fx,x) := jacobian(hj_flatten(fx), hj_flatten(x))$
+
+two_orth_frame : genmatrix(two_orth_frame, 3,2);
+
+Rz(x):=block(matrix([cos(x),-sin(x),0],[sin(x),cos(x),0],[0,0,1]))$
+Ry(x):=block(matrix([cos(x),0,sin(x)],[0,1,0],[-sin(x),0,cos(x)]))$
+
+zyz2frame(t) := block(Rz(t[3]).Ry(t[2]).Rz(t[1]))$
+
+yufei_permu(t) := block(
+F1:transpose(zyz2frame(col(t,1))),
+F2:zyz2frame(col(t,2)),
+Rst:F1.F2,
+H(n):=n[1,1]^2*n[1,2]^2+n[1,2]^2*n[1,3]^2+n[1,3]^2*n[1,1]^2,
+V(n):=n[1,1]^2*n[2,1]^2+n[2,1]^2*n[3,1]^2+n[3,1]^2*n[1,1]^2,
+ratsimp(matrix(V(col(Rst,1))+V(col(Rst,2))+V(col(Rst,3))+H(row(Rst,1))+H(row(Rst,2))+H(row(Rst,3))))
+)$
+
+yufei_permu_jac(t) := flatten_jacobian(yufei_permu(t),t);
+yufei_permu_hes(t) := flatten_jacobian(yufei_permu_jac(t),t);
+
+calc_yufei_permu : optimize(yufei_permu = yufei_permu(two_orth_frame))$
+calc_yufei_permu_jac : yufei_permu_jac = yufei_permu_jac(two_orth_frame)$
+calc_yufei_permu_hes : yufei_permu_hes = yufei_permu_hes(two_orth_frame)$
+
+f : openw("yufei_permu.f")$
+
+with_stdout(f, to_fortran('calc_yufei_permu, calc_yufei_permu, ['yufei_permu,'two_orth_frame]))$
+with_stdout(f, to_fortran('calc_yufei_permu_jac, calc_yufei_permu_jac, ['yufei_permu_jac,'two_orth_frame]))$
+with_stdout(f, to_fortran('calc_yufei_permu_hes, calc_yufei_permu_hes, ['yufei_permu_hes,'two_orth_frame]))$

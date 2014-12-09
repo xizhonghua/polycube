@@ -1,0 +1,14 @@
+# -*- mode: makefile -*-
+
+HEX_UI=/home/tfjiang/Projects/hex/build/bin/hex_ui
+HEX_UTIL=/home/tfjiang/Projects/hex/build/bin/hex_utils
+POLYCUBE=/home/tfjiang/Projects/hex/build/bin/polycube
+
+TET_FILE=$(wildcard new_tet.tet)
+
+cut_tet.tet: surface_type_lq
+	$(HEX_UI) prog=check_polycube_validation_with_equation_graph tet=new_tet.tet  cut_tet=new_tet.tet surface_type=surface_type_lq no_surface=n
+
+surface_type_lq: after_iterately_remove_surface_type-lq.vtk
+	$(HEX_UTIL) translate_surface_type_from_lq new_tet.tet after_iterately_remove_surface_type-lq.vtk surface_type_lq
+

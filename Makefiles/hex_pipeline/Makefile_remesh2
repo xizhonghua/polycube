@@ -1,0 +1,21 @@
+# -*- mode: makefile -*-
+
+include ../Makefile_common
+
+UNCUT_TET = $(wildcard ../fix/new_tet.tet)
+ZYZ = $(wildcard ../equation-no-surface/*.zyz)
+
+output.l1.tet : output.l1.arap.tet
+	$(PARAM)  prog=param3d input/tet=output.l1.arap.tet object/type=arap,l1-normal,normal-diff,normal-anti-flip,zero-fix cons/type=area-keep  package=jtf alg=SQP weight/linear_eqn_fit=0 input/iter_solver=10 output/tet=output.l1.tet input/init_tet=output.l1.arap.tet input/uncut_tet=$(UNCUT_TET) weight/l1_normal_align=0.05 input/iter_local_stiffen=0 weight/normal-diff=0 iter=1 input/inner_type=../equation-no-surface/inner_type_cut output/new_cut_tet=after_l1.cut_tet.tet output/new_uncut_tet=after_l1.uncut_tet.tet output/inner_type=after_l1.inner_type output/frame=after_l1.zyz  output/equation=after_l1.node_equatio input/need_remesh=n output/new_uncut_tet=after_l1.uncut_tet.tet input/need_node_compression=y weight/normal-anti-flip=0 linear_solver/type=direct linear_solver/name=cholmod
+
+
+output.l1.arap.tet : output.soft.no.eqn.tet
+	$(PARAM)  prog=param3d input/tet=output.soft.no.eqn.tet object/type=arap package=jtf alg=SQP weight/linear_eqn_fit=0 input/iter_solver=1 output/tet=output.l1.arap.tet input/init_tet=output.soft.no.eqn.tet input/uncut_tet=$(UNCUT_TET) weight/l1_normal_align=0.1 input/iter_local_stiffen=0 weight/normal-diff=1e-4 iter=50 input/inner_type=../equation-no-surface/inner_type_cut output/new_cut_tet=after_l1.arap.cut_tet.tet output/new_uncut_tet=after_l1.arap.uncut_tet.tet output/inner_type=after_l1.arap.inner_type output/frame=after_l1.arap.zyz input/need_remesh=n output/new_uncut_tet=after_l1.arap.uncut_tet.tet input/need_node_compression=n weight/normal-anti-flip=1e-4 linear_solver/type=direct linear_solver/name=cholmod
+
+
+
+output.soft.no.eqn.tet:
+	$(PARAM) prog=param3d input/tet=../equation-no-surface/cut_tet.tet object/type=frame input/zyz=$(ZYZ) package=jtf alg=SQP iter=50 input/iter_solver=1 weight/linear_eqn_fit=0.005 output/tet=output.soft.no.eqn.tet weight/l1_normal_align=0 input/iter_local_stiffen=0 epsg=1e-11  weight/normal-anti-flip=0.01 input/uncut_tet=$(UNCUT_TET) input/inner_type=../equation-no-surface/inner_type_cut weight/need_remesh=n input/need_node_compression=n output/new_cut_tet=after_soft.no.eqn.cut_tet.tet output/new_uncut_tet=after_soft.no.eqn.uncut_tet.tet output/inner_type=after_soft.no.eqn.inner_type output/frame=after_soft.no.eqn.zyz input/surface_type=../equation-no-surface/surface_type_cut weight/surface-type-align=10
+
+
+

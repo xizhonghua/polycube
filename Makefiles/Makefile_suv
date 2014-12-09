@@ -1,0 +1,41 @@
+HEX_UI=/home/tfjiang/Projects/hex/build/bin/hex_ui
+HEX_UTIL=/home/tfjiang/Projects/hex/build/bin/hex_utils
+
+TET_FILE=$(wildcard ../tet/*.tet)
+OBJ_FILE=$(wildcard ../tet/*.tet.obj)
+FV_FILE=$(wildcard ../tet/*.fv)
+S2V_FILE=$(wildcard ../tet/*.s2v.mat)
+
+INIT_ZYZ=$(FIX_W).init.suv.zyz
+SUV_ZYZ=$(FIX_W).inner.suv.zyz
+INNER_SMOOTH=face
+#NORMAL_ALIGN=0
+
+default: vis fv
+		
+$(SUV_ZYZ): $(INIT_ZYZ) $(HEX_UI)
+	$(HEX_UI) prog=frame_inner tet=$(TET_FILE) suv=$(FV_FILE) s2v=$(S2V_FILE) obj=$(OBJ_FILE) zyz=$(SUV_ZYZ) align_w=0 fix_w=$(FIX_W) init=$(INIT_ZYZ) package=alglib alg=lbfgs lbfgs-len=7 iter=1000  inner_smooth=$(INNER_SMOOTH)
+
+$(INIT_ZYZ): $(HEX_UI)
+	$(HEX_UI) prog=init_zyz_inner tet=$(TET_FILE) suv=$(FV_FILE) s2v=$(S2V_FILE) obj=$(OBJ_FILE) output=$(INIT_ZYZ) fix_w=$(FIX_W) package=hj alg=More iter=100 inner_smooth=$(INNER_SMOOTH)
+
+vis: $(INIT_ZYZ) $(SUV_ZYZ) $(HEX_UI)
+	 $(HEX_UI) prog=draw_inner_residual tet=$(TET_FILE) zyz=$(INIT_ZYZ) 
+	 $(HEX_UI) prog=draw_sh_smooth tet=$(TET_FILE) zyz=$(INIT_ZYZ)
+	 $(HEX_UI) prog=find_singularities2_inner tet=$(TET_FILE) zyz=$(INIT_ZYZ) vtk_dump=$(INIT_ZYZ).singularities.vtk
+	 $(HEX_UTIL) to_vis_inner $(TET_FILE) $(INIT_ZYZ) $(INIT_ZYZ).vis
+	 $(HEX_UI) prog=draw_inner_residual tet=$(TET_FILE) zyz=$(SUV_ZYZ)
+	 $(HEX_UI) prog=find_singularities2_inner tet=$(TET_FILE) zyz=$(SUV_ZYZ) vtk_dump=$(SUV_ZYZ).singularities.vtk
+	 $(HEX_UTIL) to_vis_inner $(TET_FILE) $(SUV_ZYZ) $(SUV_ZYZ).vis
+	 $(HEX_UI) prog=draw_sh_smooth tet=$(TET_FILE) zyz=$(SUV_ZYZ)
+
+fv: $(INIT_ZYZ) $(SUV_ZYZ)
+	 $(HEX_UTIL) dump_surf_zyz2fv $(TET_FILE) $(INIT_ZYZ) $(OBJ_FILE) $(S2V_FILE) $(INIT_ZYZ).fv
+	 $(HEX_UTIL) dump_surf_zyz2fv $(TET_FILE) $(SUV_ZYZ) $(OBJ_FILE) $(S2V_FILE) $(SUV_ZYZ).fv
+	 $(HEX_UTIL) dump_fv_to_cross $(OBJ_FILE) $(SUV_ZYZ).fv $(SUV_ZYZ).fv.vtk
+	 $(HEX_UTIL) dump_fv_to_cross $(OBJ_FILE) $(INIT_ZYZ).fv $(INIT_ZYZ).fv.vtk
+
+$(HEX_UI):
+
+clear:
+	rm *.zyz
